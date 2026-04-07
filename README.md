@@ -19,10 +19,14 @@ pip install -r requirements.txt
 ```bash
 python -m examples.rot_partition_sim --ne 1 --nb 50 --solver mujoco --dims 1 1 1.3 --remove-wall 0 --save-snapshot ./data/box50.npz --vis
 ```
-![Scene Generation Example](figs/mad_box.png)
+<p align="center">
+  <img src="figs/mad_box.png" width="400">
+</p>
 ## Unload Plan
 
 ```bash
 python -m examples.rot_partition_sim --ne 1 --nb 50 --solver mujoco --dims 1 1 1.3 --remove-wall 0 --save-snapshot ./data/box50.npz --vis
 ```
-![Unload Plan](figs/unload_batch.png)
+<p align="center">
+  <img src="figs/unload_batch.png" width="400">
+</p>

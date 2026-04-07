@@ -22,6 +22,7 @@ python -m examples.rot_partition_sim --ne 1 --nb 50 --solver mujoco --dims 1 1 1
 <p align="center">
   <img src="figs/mad_box.png" width="400">
 </p>
+
 ## Unload Plan
 
 ```bash

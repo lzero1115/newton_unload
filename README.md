@@ -26,7 +26,7 @@ python -m examples.rot_partition_sim --ne 1 --nb 50 --solver mujoco --dims 1 1 1
 ## Unload Plan
 
 ```bash
-python -m examples.rot_partition_sim --ne 1 --nb 50 --solver mujoco --dims 1 1 1.3 --remove-wall 0 --save-snapshot ./data/box50.npz --vis
+python -m plans.unload_batch --snapshot ./data/box50.npz --ne 16 --removal_planner height --vis 
 ```
 <p align="center">
   <img src="figs/unload_batch.png" width="400">

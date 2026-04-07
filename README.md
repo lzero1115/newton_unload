@@ -1,4 +1,4 @@
-# newton_unload
+# Unloading scene generation using newton simulator
 
 ## Environment Setup
 
@@ -13,4 +13,15 @@ Install the required packages:
 
 ```bash
 pip install -r requirements.txt
+```
+## Scene Generation
+
+```bash
+python -m examples.rot_partition_sim --ne 1 --nb 50 --solver mujoco --dims 1 1 1.3 --remove-wall 0 --save-snapshot ./data/box50.npz --vis
+```
+
+## Unload Plan
+
+```bash
+python -m examples.rot_partition_sim --ne 1 --nb 50 --solver mujoco --dims 1 1 1.3 --remove-wall 0 --save-snapshot ./data/box50.npz --vis
 ```

@@ -2,7 +2,9 @@
 Shared Warp kernels for multi-world rigid sims: settle detection and frozen-world poses.
 
 ``check_body_stability`` (legacy equiv-speed) and ``check_body_stability_lin_ang`` (separate |v| / |ω|
-thresholds) / ``enforce_frozen_worlds`` take ``active_mask`` (1 = participate).
+thresholds; **per-world** unsettled counts) / ``check_body_stability_lin_ang_per_body_unsettled`` (same
+criterion, **per-body** 0/1 for e.g. viewer coloring) / ``enforce_frozen_worlds`` take ``active_mask``
+(1 = participate).
 Use all-ones when every dynamic body counts (e.g. ``rot_partition_sim``); use real masks for
 unload flows with removed bodies.
 
@@ -86,6 +88,46 @@ def check_body_stability_lin_ang(
     ang_thr_sq = ang_thr * ang_thr
     if lv_sq >= lin_thr_sq or av_sq >= ang_thr_sq:
         wp.atomic_add(world_unsettled, world_id, 1)
+
+
+@wp.kernel
+def check_body_stability_lin_ang_per_body_unsettled(
+    body_world_start: wp.array(dtype=wp.int32),
+    world_frozen: wp.array(dtype=wp.int32),
+    active_mask: wp.array(dtype=wp.int32),
+    body_qd: wp.array(dtype=wp.spatial_vectorf),
+    world_lin_threshold: wp.array(dtype=wp.float32),
+    world_ang_threshold: wp.array(dtype=wp.float32),
+    body_unsettled: wp.array(dtype=wp.int32),
+):
+    """Same pass/fail as ``check_body_stability_lin_ang``, but set ``body_unsettled[global_id]=1`` (else 0).
+
+    Caller must zero ``body_unsettled`` before launch. Threads that return early leave prior zeros
+    (e.g. padding locals, inactive bodies). Frozen worlds: no writes (remain zero → \"settled\" for viz).
+    """
+    world_id, body_local_id = wp.tid()
+    if world_frozen[world_id] != 0:
+        return
+    w_start = body_world_start[world_id]
+    w_count = body_world_start[world_id + 1] - w_start
+    if body_local_id >= w_count:
+        return
+    global_id = w_start + body_local_id
+    if active_mask[global_id] == 0:
+        return
+    twist = body_qd[global_id]
+    lv = wp.vec3(twist[0], twist[1], twist[2])
+    av = wp.vec3(twist[3], twist[4], twist[5])
+    lv_sq = wp.dot(lv, lv)
+    av_sq = wp.dot(av, av)
+    lin_thr = world_lin_threshold[world_id]
+    ang_thr = world_ang_threshold[world_id]
+    lin_thr_sq = lin_thr * lin_thr
+    ang_thr_sq = ang_thr * ang_thr
+    if lv_sq >= lin_thr_sq or av_sq >= ang_thr_sq:
+        body_unsettled[global_id] = 1
+    else:
+        body_unsettled[global_id] = 0
 
 
 @wp.kernel

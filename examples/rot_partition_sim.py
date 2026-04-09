@@ -1,5 +1,3 @@
-
-
 from __future__ import annotations
 
 import json
@@ -67,7 +65,6 @@ class RotPartitionSim:
         self.sim_dt = self.frame_dt / self.sim_substeps
         self.viewer = viewer
         self.solver_type = args.solver
-        self.drop_height = cs.DROP_HEIGHT
 
         num_envs = int(args.ne)
         n_target = int(args.nb)
@@ -77,6 +74,7 @@ class RotPartitionSim:
             raise ValueError(f"--nb must be >= 1, got {n_target}")
         self.num_envs = num_envs
         self.n_target = n_target
+        self.partition_seed = int(getattr(args, "partition_seed", cs.SEED))
 
         # Settle semantics (see also `step` / `_check_settled`):
         # - `_check_settled` runs every `settle_check_interval` *viewer frames* (`step()` calls).
@@ -119,7 +117,7 @@ class RotPartitionSim:
                     n_target=n_target,
                     min_ratio=cs.MIN_RATIO,
                     shrink=cs.SHRINK,
-                    seed=cs.SEED,
+                    seed=self.partition_seed,
                     device=args.device,
                     isotropic=cs.ISOTROPIC,
                 )
@@ -210,7 +208,7 @@ class RotPartitionSim:
                     q = out_quats[flat]
                     he = out_half_extents[flat]
 
-                    spawn_pos = wp.vec3(float(c[0]), float(c[1]), float(c[2]) + self.drop_height)
+                    spawn_pos = wp.vec3(float(c[0]), float(c[1]), float(c[2]) + float(cs.DROP_HEIGHT))
                     quat = wp.quat(float(q[0]), float(q[1]), float(q[2]), float(q[3]))
 
                     body = env_builder.add_body(xform=wp.transform(p=spawn_pos, q=quat))
@@ -326,7 +324,8 @@ class RotPartitionSim:
                 "world_count": int(num_envs),
                 "dims": [float(v) for v in self.dims_np.tolist()],
                 "solver_type": str(self.solver_type),
-                "seed": int(cs.SEED),
+                "seed": int(self.partition_seed),
+                "partition_seed": int(self.partition_seed),
                 "target_boxes_per_world": int(n_target),
                 "box_counts_per_world": [int(v) for v in self.box_counts_per_world.tolist()],
                 "min_ratio": float(cs.MIN_RATIO),
@@ -335,7 +334,7 @@ class RotPartitionSim:
                 "fps": int(self.fps),
                 "sim_substeps": int(self.sim_substeps),
                 "sim_dt": float(self.sim_dt),
-                "drop_height": float(self.drop_height),
+                "drop_height": float(cs.DROP_HEIGHT),
                 "rigid_gap": float(cs.DEFAULT_RIGID_GAP),
                 "mujoco_contact_ke": float(cs.MUJOCO_CONTACT_KE),
                 "mujoco_contact_kd": float(cs.MUJOCO_CONTACT_KD),
@@ -668,6 +667,13 @@ def main():
         help="Target boxes per world for GPU partition (default: configs_sim.NB).",
     )
     parser.add_argument(
+        "--partition-seed",
+        type=int,
+        default=cs.SEED,
+        metavar="INT",
+        help="RNG seed for rot_batched_partition; default: configs_sim.SEED.",
+    )
+    parser.add_argument(
         "--dims",
         type=float,
         nargs=3,
@@ -710,7 +716,6 @@ def main():
             "Slower; use for profiling contact vs integrator cost."
         ),
     )
-
     args = parser.parse_args()
     if args.quiet:
         wp.config.quiet = True

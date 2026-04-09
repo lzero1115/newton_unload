@@ -12,12 +12,12 @@ SEED = 42
 ISOTROPIC = True
 
 # --- Time integration ---
-FPS = 60
-SIM_SUBSTEPS = 8
+FPS = 30
+SIM_SUBSTEPS = 4
 
 # --- Scene layout ---
 ENV_SPACING = 1.5
-DROP_HEIGHT = 0.10
+DROP_HEIGHT = 0.03
 
 # --- Shape friction / damping ---
 GROUND_MU = 1.0
@@ -36,7 +36,7 @@ BOX_MU_TORSIONAL = 0.04
 BOX_MU_ROLLING = 0.02
 
 WALL_THICKNESS = 0.02
-WALL_SCALE = 1.2
+WALL_SCALE = 1.1
 
 # --- Newton collision pipeline ---
 DEFAULT_RIGID_GAP = 0.005
@@ -50,9 +50,9 @@ ANGULAR_DAMPING = 0.1
 XPBD_ENABLE_RESTITUTION = False
 
 # --- MuJoCo solver (Warp) ---
-MUJOCO_ITERATIONS = 15
-MUJOCO_LS_ITERATIONS = 100
-MUJOCO_TOLERANCE = 1.0e-5
+MUJOCO_ITERATIONS = 30
+MUJOCO_LS_ITERATIONS = 50
+MUJOCO_TOLERANCE = 1.0e-6
 MUJOCO_LS_TOLERANCE = 0.02
 MUJOCO_SOLVER = "newton"
 MUJOCO_INTEGRATOR = "implicitfast"
@@ -63,7 +63,7 @@ MUJOCO_USE_CONTACTS = False
 
 # --- MuJoCo contact (ShapeConfig / geom solref) ---
 MUJOCO_CONTACT_KE = 2.0e4
-MUJOCO_CONTACT_KD = 2.0e2
+MUJOCO_CONTACT_KD = 2.0e3
 MUJOCO_SOLIMP = (0.95, 0.99, 0.001, 0.5, 2.0)
 
 # --- Settle detection (`check_body_stability_lin_ang`: separate |v| and |ω| thresholds, same value per world) ---
@@ -75,7 +75,7 @@ MUJOCO_SOLIMP = (0.95, 0.99, 0.001, 0.5, 2.0)
 SETTLE_LINEAR_SPEED_MPS = 0.02
 SETTLE_ANGULAR_SPEED_RAD = 0.1
 SETTLE_CHECK_INTERVAL = 3
-SETTLE_STEPS = 3
+SETTLE_STEPS = 5
 
 # --- Other argparse defaults ---
 DEFAULT_SOLVER = "xpbd"
